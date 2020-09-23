@@ -28,16 +28,11 @@ print("defining model...")
 
 model = tf.keras.models.Sequential([
     tf.keras.layers.InputLayer(input_shape=(len(df_train.columns) - 2,)),
+    # TODO: probeer eerst grote hidden, gevolgt door kleinere hidden
+    tf.keras.layers.Dense(10, activation=tf.keras.layers.LeakyReLU(alpha=0.1)),
+    tf.keras.layers.Dense(10, activation=tf.keras.layers.LeakyReLU(alpha=0.1)),
+    # tf.keras.layers.Dense(20, activation='swish'),
 
-    tf.keras.layers.Dense(128, activation='tanh'),
-    tf.keras.layers.Dense(128, activation='tanh'),
-    tf.keras.layers.Dense(128, activation='tanh'),
-    tf.keras.layers.Dense(128, activation='tanh'),
-    tf.keras.layers.Dense(128, activation='tanh'),
-    # tf.keras.layers.Dense(128, activation='swish'),
-    # tf.keras.layers.Dense(128, activation='swish'),
-    # tf.keras.layers.Dense(128, activation='swish'),
-    # tf.keras.layers.Dense(128, activation='swish'),
     # tf.keras.layers.Dense(128, activation='swish'),
     # tf.keras.layers.Dense(128, activation='swish'),
     # tf.keras.layers.Dense(128, activation='swish'),
@@ -48,7 +43,7 @@ model = tf.keras.models.Sequential([
 print("compiling model...")
 model.compile(
     loss='sparse_categorical_crossentropy',
-    optimizer=tf.keras.optimizers.Adam(0.0005),
+    optimizer=tf.keras.optimizers.Adam(0.0001),
     metrics=['accuracy', tf.keras.metrics.SparseCategoricalAccuracy()],
 )
 
@@ -56,10 +51,10 @@ print("fitting model...")
 train_history = model.fit(
     x=df_train.drop('id', axis=1).drop('cuisine', axis=1),
     y=outputs,
-    epochs=20,
+    epochs=100,
     validation_split=0.3,
     shuffle=True,
-    batch_size=64 * 1,
+    batch_size=64 * 4,
     verbose=True
 )
 loss = train_history.history['loss']
