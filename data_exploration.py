@@ -18,5 +18,5 @@ df_train = pd.read_json('./data/train.json')
 
 sns.countplot(y='cuisine', data=df_train, palette=sns.color_palette('inferno', 15))
 plt.gcf().set_size_inches(15, 10)
-plt.title('Cuisine Distribution', size=20)
+plt.title('Cuisine Distribution', size=len(df_train['cuisine'].unique()))
 plt.show()

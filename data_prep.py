@@ -179,3 +179,6 @@ print(test_df['milk'][0])  # should be 1
 print(test_df['bananas'][0])  # should be 0
 
 print("Creating new test data took {} seconds".format(end - start))
+
+train_df.to_csv('./data/cooking_test_v2.csv', index=False)
+test_df.to_csv('./data/cooking_test_v2.csv', index=False)
