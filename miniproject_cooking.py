@@ -18,6 +18,19 @@ get_custom_objects().update({'swish': Activation(swish)})
 print("reading training data...")
 df_train = pd.read_csv("./data/cooking_train_v2.csv", sep=',')
 
+# filter for max of 1000 values from each cuisine
+# cuisine_count = {}
+# df_train = pd.DataFrame()
+#
+# print("limiting training data...")
+#
+# for cuisine in df_train_process["cuisine"].unique():
+#     lst = df_train_process[df_train_process['cuisine'] == cuisine]
+#     if len(lst) >= 1000:
+#         df_train = df_train.append(lst[0:1000], ignore_index=True)
+#     else:
+#         df_train = df_train.append(lst[0:len(lst)], ignore_index=True)
+
 print("creating labels...")
 labels_strings = df_train['cuisine'].unique()
 target_dict = {n: i for i, n in enumerate(labels_strings)}
@@ -33,11 +46,10 @@ mc = ModelCheckpoint('./models/best_model.h5', monitor='val_loss', mode='min', s
 
 model = tf.keras.models.Sequential([
     tf.keras.layers.InputLayer(input_shape=(len(df_train.columns) - 2,)),
-    # TODO: probeer eerst grote hidden, gevolgt door kleinere hidden
     # tf.keras.layers.Dense(10, activation=tf.keras.layers.LeakyReLU(alpha=0.1)),
     # tf.keras.layers.Dense(10, activation=tf.keras.layers.LeakyReLU(alpha=0.1)),
-    tf.keras.layers.Dense(40, activation='relu'),
-    tf.keras.layers.Dense(40, activation='relu'),
+    tf.keras.layers.Dense(400, activation='tanh'),
+    tf.keras.layers.Dense(40, activation='tanh'),
 
     tf.keras.layers.Dense(len(df_train['cuisine'].unique()), activation='softmax')
 ])
@@ -57,9 +69,9 @@ train_history = model.fit(
     epochs=100,
     validation_split=0.3,
     shuffle=True,
-    batch_size=32,
+    batch_size=64,
     verbose=True,
-    callbacks=[es, mc]
+    # callbacks=[es, mc]
 )
 
 model = load_model("./models/best_model.h5")
