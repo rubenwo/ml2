@@ -124,8 +124,8 @@ for k in original_features:
 cleaned_features = list(cleaned_features.keys())
 
 # Validate removing worked with a sample ingredient
-print("Yoplait® Greek 100 blackberry pie yogurt".lower() in original_features)
-print("Yoplait® Greek 100 blackberry pie yogurt".lower() in cleaned_features)
+print("Yoplait® Greek 100 blackberry pie yogurt".lower() in original_features)  # should be True
+print("Yoplait® Greek 100 blackberry pie yogurt".lower() in cleaned_features)  # should be False
 
 # convert to list for use in new DataFrame
 print(cleaned_features)
@@ -150,10 +150,30 @@ for i in range(len(df_train)):
 train_df['cuisine'] = df_train['cuisine']
 
 end = time.time()
-print(train_df.head())
 
-print(train_df['garlic'][0])  # should be 1
-print(train_df['salt'][0])  # should be 0
+assert int(train_df['garlic'][0]) == 1
+assert int(train_df['salt'][0]) == 0
+
+columns = train_df.columns
+columns = columns.drop('id')
+columns = columns.drop('cuisine')
+columns = list(columns)
+
+summed_values = {}
+
+for col in columns:
+    val = train_df[col].sum(axis=0)
+    summed_values[col] = val
+
+used_one_or_less = []
+print(summed_values)
+for k, v in summed_values.items():
+    if v <= 1:
+        used_one_or_less.append(k)
+        print("Feature: {} is only used {} times in dataset".format(k, v))
+
+print(used_one_or_less)
+print(len(used_one_or_less))
 
 print("Creating new train data took {} seconds".format(end - start))
 
@@ -175,10 +195,10 @@ for i in range(len(df_test)):
             test_df[ingredient.lower()][i] = 1  # else the column should already exist and we can access it directly
 
 end = time.time()
-print(test_df['milk'][0])  # should be 1
-print(test_df['bananas'][0])  # should be 0
+assert int(test_df['milk'][0]) == 1
+assert int(test_df['bananas'][0]) == 0
 
 print("Creating new test data took {} seconds".format(end - start))
 
-train_df.to_csv('./data/cooking_test_v2.csv', index=False)
+train_df.to_csv('./data/cooking_train_v2.csv', index=False)
 test_df.to_csv('./data/cooking_test_v2.csv', index=False)

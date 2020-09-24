@@ -14,7 +14,7 @@ def swish(x, beta=1):
 get_custom_objects().update({'swish': Activation(swish)})
 
 print("reading training data...")
-df_train = pd.read_csv("./data/cooking_train.csv", sep=',')
+df_train = pd.read_csv("./data/cooking_train_v2.csv", sep=',')
 
 print("creating labels...")
 labels_strings = df_train['cuisine'].unique()
@@ -22,20 +22,18 @@ target_dict = {n: i for i, n in enumerate(labels_strings)}
 outputs = df_train['cuisine'].map(target_dict)
 
 print("reading test data...")
-df_test = pd.read_csv("./data/cooking_test.csv", sep=',')
+df_test = pd.read_csv("./data/cooking_test_v2.csv", sep=',')
 
 print("defining model...")
 
 model = tf.keras.models.Sequential([
     tf.keras.layers.InputLayer(input_shape=(len(df_train.columns) - 2,)),
     # TODO: probeer eerst grote hidden, gevolgt door kleinere hidden
-    tf.keras.layers.Dense(10, activation=tf.keras.layers.LeakyReLU(alpha=0.1)),
-    tf.keras.layers.Dense(10, activation=tf.keras.layers.LeakyReLU(alpha=0.1)),
-    # tf.keras.layers.Dense(20, activation='swish'),
+    # tf.keras.layers.Dense(10, activation=tf.keras.layers.LeakyReLU(alpha=0.1)),
+    # tf.keras.layers.Dense(10, activation=tf.keras.layers.LeakyReLU(alpha=0.1)),
+    tf.keras.layers.Dense(40, activation='swish'),
+    tf.keras.layers.Dense(20, activation='swish'),
 
-    # tf.keras.layers.Dense(128, activation='swish'),
-    # tf.keras.layers.Dense(128, activation='swish'),
-    # tf.keras.layers.Dense(128, activation='swish'),
 
     tf.keras.layers.Dense(len(df_train['cuisine'].unique()), activation='softmax')
 ])
