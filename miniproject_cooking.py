@@ -1,6 +1,8 @@
 import matplotlib.pyplot as plt
 import pandas as pd
 import tensorflow.compat.v2 as tf
+from tensorflow_core.python.keras.callbacks import ModelCheckpoint, EarlyStopping
+from tensorflow_core.python.keras.models import load_model
 
 sigmoid = tf.keras.activations.sigmoid
 get_custom_objects = tf.keras.utils.get_custom_objects
@@ -26,18 +28,21 @@ df_test = pd.read_csv("./data/cooking_test_v2.csv", sep=',')
 
 print("defining model...")
 
+es = EarlyStopping(monitor='val_loss', mode='min', verbose=1, patience=5)
+mc = ModelCheckpoint('./models/best_model.h5', monitor='val_loss', mode='min', save_best_only=True)
+
 model = tf.keras.models.Sequential([
     tf.keras.layers.InputLayer(input_shape=(len(df_train.columns) - 2,)),
     # TODO: probeer eerst grote hidden, gevolgt door kleinere hidden
     # tf.keras.layers.Dense(10, activation=tf.keras.layers.LeakyReLU(alpha=0.1)),
     # tf.keras.layers.Dense(10, activation=tf.keras.layers.LeakyReLU(alpha=0.1)),
-    tf.keras.layers.Dense(40, activation='swish'),
-    tf.keras.layers.Dense(20, activation='swish'),
-
+    tf.keras.layers.Dense(40, activation='relu'),
+    tf.keras.layers.Dense(40, activation='relu'),
 
     tf.keras.layers.Dense(len(df_train['cuisine'].unique()), activation='softmax')
 ])
 
+# saved_model = load_model('best_model.h5')
 print("compiling model...")
 model.compile(
     loss='sparse_categorical_crossentropy',
@@ -52,9 +57,13 @@ train_history = model.fit(
     epochs=100,
     validation_split=0.3,
     shuffle=True,
-    batch_size=64 * 4,
-    verbose=True
+    batch_size=32,
+    verbose=True,
+    callbacks=[es, mc]
 )
+
+model = load_model("./models/best_model.h5")
+
 loss = train_history.history['loss']
 val_loss = train_history.history['val_loss']
 plt.plot(loss)
